@@ -13,3 +13,10 @@
 1. ArduinoBLE 라이브러리 설치: 툴 -> 라이브러리 관리 -> `ArduinoBLE` 검색 후 설치
 2. 보드 BSP 설치: 툴 -> 보드 -> 보드 매니저 -> `Arduino Mbed OS Nano Boards` 검색 후 설치
 3. 보드 선택: 툴 -> 보드 -> Arduino Mbed OS Nano Boards -> Arduino Nano 33 BLE
+
+### 프로토콜 정의
+
+* GPIO 제어 형식: ^[포트번호]:[H|L|?]$
+  * ex1: 13번 포트에 HIGH 출력: ^13:H$
+  * ex2: 13번 포트에 LOW 출력: ^13:L$
+  * ex3: 13번 포트의 값 읽기: ^13:?$

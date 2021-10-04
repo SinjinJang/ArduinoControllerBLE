@@ -1,11 +1,11 @@
 /**
- * BLE 통신을 통해 각종 포트들을 제어하는 컨트롤러의 구현
- *
- * 아두이노는 Peripheral 로 동작하면서 시리얼 통신으로 요청을 받아 처리하며,
- * Central은 어떤 디바이스/플랫폼이 되어도 무방하며 프로토콜에 맞게 요청을 보내면 된다.
- * 
- * H/W: Arduino Nano 33 BLE
- */
+   BLE 통신을 통해 각종 포트들을 제어하는 컨트롤러의 구현
+
+   아두이노는 Peripheral 로 동작하면서 시리얼 통신으로 요청을 받아 처리하며,
+   Central은 어떤 디바이스/플랫폼이 되어도 무방하며 프로토콜에 맞게 요청을 보내면 된다.
+
+   H/W: Arduino Nano 33 BLE
+*/
 
 
 #include <ArduinoBLE.h>
@@ -31,8 +31,8 @@ char g_res_buf[10];
 
 
 /**
- * 셋업
- */
+   셋업
+*/
 void setup() {
   Serial.begin(9600);
   while (!Serial);
@@ -68,8 +68,8 @@ void setup() {
 
 
 /**
- * 데이터를 수신하여 온전한 프로토콜 형식이 되었을 때 true값을 리턴해준다.
- */
+   데이터를 수신하여 온전한 프로토콜 형식이 되었을 때 true값을 리턴해준다.
+*/
 boolean inline parseCmd(char ch) {
   if ('^' == ch) {
     g_pin_num = 0;
@@ -91,8 +91,8 @@ boolean inline parseCmd(char ch) {
 }
 
 /**
- * BLE로부터 전달받은 명령어를 실행한다.
- */
+   BLE로부터 전달받은 명령어를 실행한다.
+*/
 int executeCmd() {
   if ('?' != g_value) {
     digitalWrite(g_pin_num, 'H' == g_value ? HIGH : LOW);
@@ -104,21 +104,21 @@ int executeCmd() {
 }
 
 /**
- * BLE로 응답 데이터를 보낸다.
- */
+   BLE로 응답 데이터를 보낸다.
+*/
 void response(int val) {
   sprintf(g_res_buf, "^%d:%c$", g_pin_num, HIGH == val ? 'H' : 'L');
   Serial.println(g_res_buf);
 
   int idx = 0;
-  while(g_res_buf[idx++]) {
+  while (g_res_buf[idx++]) {
     g_CmdCharacteristic.writeValue(g_res_buf[idx]);
   }
 }
 
 /**
- * 메인 루프
- */
+   메인 루프
+*/
 void loop() {
   // listen for BLE peripherals to connect:
   BLEDevice central = BLE.central();

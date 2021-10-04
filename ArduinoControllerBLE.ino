@@ -8,12 +8,6 @@
 */
 
 
-#include <ArduinoBLE.h>
-
-BLEService g_CtrlService("180A"); // BLE Service
-
-// BLE Characteristic - custom 128-bit UUID, read and writable by central
-BLEByteCharacteristic g_CmdCharacteristic("2A57", BLERead | BLEWrite);
 
 
 // 명령어 파트 정의
@@ -35,37 +29,14 @@ char g_res_buf[10];
 */
 void setup() {
   Serial.begin(9600);
-  while (!Serial);
+  Serial1.begin(9600);
+  while (!Serial1);
+  
+  Serial1.print("AT+NAMEhw-controller");
 
   // LED 테스트용 포트
   pinMode(LED_BUILTIN, OUTPUT);
-  // TODO: 제어할 포트 추가 정의
-
-  // begin initialization
-  if (!BLE.begin()) {
-    Serial.println("starting BLE failed!");
-    while (1);
-  }
-
-  // set advertised local name and service UUID:
-  BLE.setLocalName("Arduino Controller Nano 33 BLE");
-  BLE.setAdvertisedService(g_CtrlService);
-
-  // add the characteristic to the service
-  g_CtrlService.addCharacteristic(g_CmdCharacteristic);
-
-  // add service
-  BLE.addService(g_CtrlService);
-
-  // set the initial value for the characteristic:
-  g_CmdCharacteristic.writeValue(0);
-
-  // start advertising
-  BLE.advertise();
-
-  Serial.println("BLE LED Peripheral");
 }
-
 
 /**
    데이터를 수신하여 온전한 프로토콜 형식이 되었을 때 true값을 리턴해준다.
@@ -108,45 +79,21 @@ int executeCmd() {
 */
 void response(int val) {
   sprintf(g_res_buf, "^%d:%c$", g_pin_num, HIGH == val ? 'H' : 'L');
+  Serial1.println(g_res_buf);
   Serial.println(g_res_buf);
-
-  int idx = 0;
-  while (g_res_buf[idx++]) {
-    g_CmdCharacteristic.writeValue(g_res_buf[idx]);
-  }
 }
 
 /**
    메인 루프
 */
+int ch;
 void loop() {
-  // listen for BLE peripherals to connect:
-  BLEDevice central = BLE.central();
-
-  // if a central is connected to peripheral:
-  if (central) {
-    Serial.print("Connected to central: ");
-
-    // print the central's MAC address:
-    Serial.println(central.address());
-    digitalWrite(LED_BUILTIN, HIGH); // turn on the LED to indicate the connection
-
-    // while the central is still connected to peripheral:
-    while (central.connected()) {
-      // 다른 디바이스로부터 수신한 데이터가 있다면 명령어 해석 및 처리를 시도한다.
-      while (g_CmdCharacteristic.written()) {
-        char ch = g_CmdCharacteristic.value();
-        boolean ret = parseCmd(ch);
-        if (ret) {
-          int val = executeCmd();
-          response(val);
-        }
-      }
+  if (Serial1.available()) {
+    ch = Serial1.read();
+    boolean ret = parseCmd(ch);
+    if (ret) {
+      int val = executeCmd();
+      response(val);
     }
-
-    // when the central disconnects, print it out:
-    Serial.print(F("Disconnected from central: "));
-    Serial.println(central.address());
-    digitalWrite(LED_BUILTIN, LOW); // when the central disconnects, turn off the LED
   }
 }

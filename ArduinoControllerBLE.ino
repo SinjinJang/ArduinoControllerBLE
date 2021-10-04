@@ -1,10 +1,13 @@
 /**
-   BLE 통신을 통해 각종 포트들을 제어하는 컨트롤러의 구현
+  Bluetooth Serial 통신을 통해 각종 포트들을 제어하는 컨트롤러의 구현
 
-   아두이노는 Peripheral 로 동작하면서 시리얼 통신으로 요청을 받아 처리하며,
-   Central은 어떤 디바이스/플랫폼이 되어도 무방하며 프로토콜에 맞게 요청을 보내면 된다.
+  아두이노는 Peripheral 로 동작하면서 시리얼 통신으로 요청을 받아 처리하며,
+  Central은 어떤 디바이스/플랫폼이 되어도 무방하며 프로토콜에 맞게 요청을 보내면 된다.
 
-   H/W: Arduino Nano 33 BLE
+  - H/W: Arduino Nano 33 BLE
+  - RX0, TX1: HC-06
+
+  NOTE: 보드 내장된 BLE 모듈로는 시리얼 통신이 불가능하여 사용하지 않고, 별도 모듈 연결함.
 */
 
 
@@ -31,7 +34,7 @@ void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
   while (!Serial1);
-  
+
   Serial1.print("AT+NAMEhw-controller");
 
   // LED 테스트용 포트
